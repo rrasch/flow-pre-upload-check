@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+
+require 'open3'
+require 'optparse'
+
+
+ros_stone_bin = "/Users/dlts/Desktop/RosarioStone2016.pl"
+
+jhove_bin = "/usr/local/dlib/jhove-tools/jhove-tif-batch.sh"
+
+
+def do_cmd(cmd)
+  output, status = Open3.capture2e(cmd)
+  success = status.exitstatus.zero?
+  if !success
+    raise "#{cmd} exited unsuccessfully: #{output}"
+  end
+end
+
+
+op = OptionParser.new do |opts|
+
+  opts.banner = "Usage: #{$0} ID INPUT_DIR"
+
+  opts.on('-h', '--help', 'Print help message') do
+    puts opts
+    exit
+  end
+
+end
+
+op.parse!
+
+id = ARGV.pop
+
+if !id
+  puts op
+  raise "Please specify a digitization id"
+end
+
+input_dir = ARGV.pop
+
+if !input_dir
+  puts op
+  raise "Please specify a file to process"
+end
+
+if !File.directory?(input_dir)
+  raise "Input directory #{input_dir} does not exist"
+end
+
+
+do_cmd("ccg text check -p #{id} -d #{input_dir}")
+
+do_cmd("#{ros_stone_bin} #{input_dir}")
+
+do_cmd("#{jhove_bin} #{input_dir}")
+
+
