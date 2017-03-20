@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+#
+# Author: rasan@nyu.edu
 
 require 'open3'
 require 'optparse'
