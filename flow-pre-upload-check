@@ -42,7 +42,7 @@ input_dir = ARGV.pop
 
 if !input_dir
   puts op
-  raise "Please specify a file to process"
+  raise "Please specify a directory to process"
 end
 
 if !File.directory?(input_dir)
@@ -55,5 +55,4 @@ do_cmd("ccg text check -p #{id} -d #{input_dir}")
 do_cmd("#{ros_stone_bin} #{input_dir}")
 
 do_cmd("#{jhove_bin} #{input_dir}")
-
 
