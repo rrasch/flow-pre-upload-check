@@ -8,11 +8,15 @@ ros_stone_bin = "/Users/dlts/Desktop/RosarioStone2016.pl"
 
 jhove_bin = "/usr/local/dlib/jhove-tools/jhove-tif-batch.sh"
 
+ccg_text_check  = %w[image_set image postcard map book]
+ros_stone_check = %w[image_set image postcard map book]
+jhove_check     = %w[image_set image postcard map book]
+
 
 def do_cmd(cmd)
   output, status = Open3.capture2e(cmd)
   success = status.exitstatus.zero?
-  if !success
+  if !success || cmd =~ /^ccg/ && output =~ /^fail,/
     raise "#{cmd} exited unsuccessfully: #{output}"
   end
 end
@@ -20,10 +24,10 @@ end
 
 op = OptionParser.new do |opts|
 
-  opts.banner = "Usage: #{$0} ID INPUT_DIR"
+  opts.banner = "Usage: #{$0} ID INPUT_DIRECTORY OBJECT_TYPE"
 
   opts.on('-h', '--help', 'Print help message') do
-    puts opts
+    STDERR.puts opts
     exit
   end
 
@@ -31,28 +35,26 @@ end
 
 op.parse!
 
-id = ARGV.pop
-
-if !id
-  puts op
-  raise "Please specify a digitization id"
+if ARGV.size != 3
+  STDERR.puts "Wrong number of arguments.\n", op
+  exit 1
 end
 
-input_dir = ARGV.pop
-
-if !input_dir
-  puts op
-  raise "Please specify a directory to process"
-end
+id, input_dir, obj_type = ARGV.first(3)
 
 if !File.directory?(input_dir)
   raise "Input directory #{input_dir} does not exist"
 end
 
+if ccg_text_check.include?(obj_type)
+  do_cmd("ccg text check -p #{id} -d #{input_dir}")
+end
 
-do_cmd("ccg text check -p #{id} -d #{input_dir}")
+if ros_stone_check.include?(obj_type)
+  do_cmd("#{ros_stone_bin} #{input_dir}")
+end
 
-do_cmd("#{ros_stone_bin} #{input_dir}")
-
-do_cmd("#{jhove_bin} #{input_dir}")
+if jhove_check.include?(obj_type)
+  do_cmd("#{jhove_bin} #{input_dir}")
+end
 
