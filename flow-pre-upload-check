@@ -2,8 +2,12 @@
 #
 # Author: rasan@nyu.edu
 
+require 'json'
+require 'net/http'
 require 'open3'
 require 'optparse'
+require 'uri'
+require 'yaml'
 
 
 ros_stone_bin = "/Users/dlts/Desktop/RosarioStone2016.pl"
@@ -23,6 +27,7 @@ def do_cmd(cmd)
   end
 end
 
+config = YAML.load_file('config.yaml')
 
 op = OptionParser.new do |opts|
 
@@ -46,6 +51,20 @@ id, input_dir, obj_type = ARGV.first(3)
 
 if !File.directory?(input_dir)
   raise "Input directory #{input_dir} does not exist"
+end
+
+obj_type = 'book'
+
+tracking_url_file = File.join(input_dir, 'tracking_url')
+if File.file?(tracking_url_file)
+  tracking_url = File.open(tracking_url_file).first.strip
+  uri = URI.parse(tracking_url)
+  http = Net::HTTP.new(uri.host, uri.port)
+  request = Net::HTTP::Get.new(uri.request_uri)
+  request.basic_auth(config[:rsbe_user], config[:rsbe_pass])
+  response = http.request(request)
+  tracking = JSON.parse(response.body)
+  obj_type = tracking['object_type']
 end
 
 if ccg_text_check.include?(obj_type)
