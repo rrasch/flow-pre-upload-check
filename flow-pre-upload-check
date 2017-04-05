@@ -6,18 +6,8 @@ require 'json'
 require 'net/http'
 require 'open3'
 require 'optparse'
-require 'rsbe/client'
 require 'uri'
 require 'yaml'
-
-include Rsbe::Client
-
-# partners = Partner.all.each do |p|
-#   puts p
-#   p.collections.each do |c|
-#     puts c.
-#   end
-# end
 
 
 ros_stone_bin = "/Users/dlts/Desktop/RosarioStone2016.pl"
